@@ -89,12 +89,17 @@ Token Token_stream::get(){
             default:
                 if(isalpha(ch)){
                  ct.string_value=ch;  
-                //  ip->putback(ch);
+                
                 //  *ip>>ct.string_value;
                 while(ip->get(ch) && isalnum(ch))
                       ct.string_value+=ch;
-                //  ct.kind=Kind::name;
-                 return ct={Kind::name};   
+                       ip->putback(ch);
+                 ct.kind=Kind::name;
+
+                 return ct;
+                //   table[ct.string_value]=0;
+                 
+                //  return ct={Kind::name};   
 
                 }
 
@@ -166,7 +171,7 @@ double term(bool get){
               case Kind::mul:
                 left*=prim(true);
                 break;
-              case Kind::minus:
+              case Kind::div:
                  if(auto d=prim(true)){
                  left /=d; 
                  break;
@@ -211,12 +216,13 @@ double expr(bool get){
 ///////////////////////////////////////
 
 void calculate(){
-    
+    double tempdig=0;
     for(;;){
         ts.get();
         if(ts.current().kind==Kind::end) break;
         if(ts.current().kind==Kind::print) continue;
-        cout<<expr(false)<<'\n';
+         tempdig=expr(false);
+        cout<<tempdig<<'\n';
 
 
     }
