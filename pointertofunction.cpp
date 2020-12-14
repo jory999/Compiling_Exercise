@@ -1,12 +1,35 @@
 # include <iostream>
 # include <vector>
-# include <string>
+# include <cstring> 
 # include <string.h>
+#include <string>
 # include <algorithm>
 
 using namespace std;
 
-
+/* #ifndef __HAVE_ARCH_STRCMP
+ /**
+  * strcmp - Compare two strings
+  * @cs: One string
+  * @ct: Another string
+  */
+ /*#undef strcmp
+ int strcmp(const char *cs, const char *ct)
+ {
+         unsigned char c1, c2;
+ 
+         while (1) {
+                 c1 = *cs++;
+                 c2 = *ct++;
+                 if (c1 != c2)
+                         return c1 < c2 ? -1 : 1;
+                 if (!c1)
+                         break;
+         }
+         return 0;
+ }
+//  EXPORT_SYMBOL(strcmp);
+ #endif */
 
 
 
@@ -113,20 +136,20 @@ int main(){
     "Kernighan B.W.", "bwk",  11276
     }; */
 
-    /*  ssort(&heads,6,sizeof(User),cmp1);
+     ssort(&heads,6,sizeof(User),cmp1);
      print_id(heads);
-      cout << '\n'; */
+      cout << '\n';
 
      /* ssort(&heads,6,sizeof(User),cmp2);
       print_id(heads);
       cout << '\n'; */
 
       cout << "Heads in alphabetical order:\n";
-sort(heads.begin(), heads.end(),[](const User& x, const User& y) { return x.name<y.name; });
+sort(heads.begin(), heads.end(),[](const User& x, const User& y) { return x.name>=y.name; });
 print_id(heads);
 cout << '\n';
 cout << "Heads in order of department number:\n";
-sort(heads.begin(), heads.end(),[](const User& x, const User& y) { return x.dept<y.dept; });
+sort(heads.begin(), heads.end(),[](const User& x, const User& y) { return x.dept>y.dept; });
 print_id(heads);
 
 }
