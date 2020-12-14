@@ -136,7 +136,7 @@ int main(){
     "Kernighan B.W.", "bwk",  11276
     }; */
 
-     ssort(&heads,6,sizeof(User),cmp1);
+    // ssort(&heads,6,sizeof(User),cmp1);
      print_id(heads);
       cout << '\n';
 
