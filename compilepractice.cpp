@@ -2,11 +2,16 @@
 # include <string>
 # include <map>
 # include <cctype>
+# include <math.h>
+//# include <compilepractise>
 
 using namespace std;
 
+typedef double (*MATHFUN) (double );
 
 map<string,double> table;
+
+map<string,MATHFUN> mathfun_table;
 
 /////////////////////////////////////////////
 int no_of_errors;
@@ -20,9 +25,11 @@ double error(const string& s){
 }
 ////////////////////////////////////
 
+
+
 enum class Kind:char {
 
-    name,number,end,
+    name,number,end,func,
     plus='+',minus='-',mul='*',div='/',print=';',assign='=',lp='(',rp=')'
 
 };
@@ -32,6 +39,7 @@ struct Token{
     Kind kind;
     string string_value;
     double number_value;
+    MATHFUN nowfun;
 };
 
 /////////////////////////////////////
@@ -85,7 +93,7 @@ Token Token_stream::get(){
                 ip->putback(ch);
                 *ip>>ct.number_value;
                 ct.kind=Kind::number;
-                return ct;
+                return ct; 
             default:
                 if(isalpha(ch)){
                  ct.string_value=ch;  
@@ -93,8 +101,27 @@ Token Token_stream::get(){
                 //  *ip>>ct.string_value;
                 while(ip->get(ch) && isalnum(ch))
                       ct.string_value+=ch;
-                       ip->putback(ch);
-                 ct.kind=Kind::name;
+                      if (ch=='(')
+                      {
+                          //ip->putback(ch);
+                          MATHFUN tempfun;
+                           ct.kind=Kind::func;
+                           tempfun=mathfun_table[ct.string_value];
+                           if(tempfun==nullptr){
+                               error("Not defined function");
+                               ct={Kind::print};
+
+                           }
+                          ct.nowfun=mathfun_table[ct.string_value];
+                           //ct.nowfun=sqrt;
+                      } else
+                      {
+                          ip->putback(ch);
+                           ct.kind=Kind::name;
+                      }
+                      
+                       
+                
 
                  return ct;
                 //   table[ct.string_value]=0;
@@ -141,6 +168,7 @@ double prim(bool get){
              if(ts.get().kind==Kind::assign) v=expr(true);
              return v;
          } 
+         
         case Kind::minus:
             return -prim(true);
         case Kind::lp:
@@ -151,7 +179,17 @@ double prim(bool get){
            ts.get();
            return e;
 
-         }  
+         } 
+
+         case Kind::func:
+         {
+             double& v=table[ts.current().string_value];
+             v=ts.current().nowfun( expr(true));
+             if(ts.current().kind!=Kind::rp) return error("')' expected");
+             ts.get();
+             return v;
+
+         } 
 
          default:
 
@@ -236,6 +274,15 @@ int main(){
 
         table["pi"] =3.1415926;
         table["e"]=2.71818;
+
+        //Functions in cmath(math.h)    
+        mathfun_table["sqrt"]=sqrt;
+        mathfun_table["log10"]=log10;
+        mathfun_table["exp"]=exp;
+        mathfun_table["sin"]=sin;
+        mathfun_table["fabs"]=fabs;
+        mathfun_table["tan"]=tan;
+
 
         calculate();
 
