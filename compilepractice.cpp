@@ -2,6 +2,7 @@
 # include <string>
 # include <map>
 # include <cctype>
+# include <math.h>
 //# include <compilepractise>
 
 using namespace std;
@@ -21,9 +22,11 @@ double error(const string& s){
 }
 ////////////////////////////////////
 
+typedef double (*MATHFUN) (double );
+
 enum class Kind:char {
 
-    name,number,end,
+    name,number,end,func,
     plus='+',minus='-',mul='*',div='/',print=';',assign='=',lp='(',rp=')'
 
 };
@@ -33,6 +36,7 @@ struct Token{
     Kind kind;
     string string_value;
     double number_value;
+    MATHFUN nowfun;
 };
 
 /////////////////////////////////////
@@ -94,8 +98,19 @@ Token Token_stream::get(){
                 //  *ip>>ct.string_value;
                 while(ip->get(ch) && isalnum(ch))
                       ct.string_value+=ch;
-                       ip->putback(ch);
-                 ct.kind=Kind::name;
+                      if (ch=='(')
+                      {
+                          //ip->putback(ch);
+                           ct.kind=Kind::func;
+                           ct.nowfun=sqrt;
+                      } else
+                      {
+                          ip->putback(ch);
+                           ct.kind=Kind::name;
+                      }
+                      
+                       
+                
 
                  return ct;
                 //   table[ct.string_value]=0;
@@ -142,6 +157,7 @@ double prim(bool get){
              if(ts.get().kind==Kind::assign) v=expr(true);
              return v;
          } 
+         
         case Kind::minus:
             return -prim(true);
         case Kind::lp:
@@ -152,7 +168,17 @@ double prim(bool get){
            ts.get();
            return e;
 
-         }  
+         } 
+
+         case Kind::func:
+         {
+             double& v=table[ts.current().string_value];
+             v=ts.current().nowfun( expr(true));
+             if(ts.current().kind!=Kind::rp) return error("')' expected");
+             ts.get();
+             return v;
+
+         } 
 
          default:
 
