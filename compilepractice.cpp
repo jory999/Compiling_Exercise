@@ -7,8 +7,11 @@
 
 using namespace std;
 
+typedef double (*MATHFUN) (double );
 
 map<string,double> table;
+
+map<string,MATHFUN> mathfun_table;
 
 /////////////////////////////////////////////
 int no_of_errors;
@@ -22,7 +25,7 @@ double error(const string& s){
 }
 ////////////////////////////////////
 
-typedef double (*MATHFUN) (double );
+
 
 enum class Kind:char {
 
@@ -90,7 +93,7 @@ Token Token_stream::get(){
                 ip->putback(ch);
                 *ip>>ct.number_value;
                 ct.kind=Kind::number;
-                return ct;
+                return ct; 
             default:
                 if(isalpha(ch)){
                  ct.string_value=ch;  
@@ -101,8 +104,16 @@ Token Token_stream::get(){
                       if (ch=='(')
                       {
                           //ip->putback(ch);
+                          MATHFUN tempfun;
                            ct.kind=Kind::func;
-                           ct.nowfun=sqrt;
+                           tempfun=mathfun_table[ct.string_value];
+                           if(tempfun==nullptr){
+                               error("Not defined function");
+                               ct={Kind::print};
+
+                           }
+                          ct.nowfun=mathfun_table[ct.string_value];
+                           //ct.nowfun=sqrt;
                       } else
                       {
                           ip->putback(ch);
@@ -263,6 +274,15 @@ int main(){
 
         table["pi"] =3.1415926;
         table["e"]=2.71818;
+
+        //Functions in cmath(math.h)    
+        mathfun_table["sqrt"]=sqrt;
+        mathfun_table["log10"]=log10;
+        mathfun_table["exp"]=exp;
+        mathfun_table["sin"]=sin;
+        mathfun_table["fabs"]=fabs;
+        mathfun_table["tan"]=tan;
+
 
         calculate();
 
