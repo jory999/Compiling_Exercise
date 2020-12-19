@@ -272,8 +272,8 @@ void calculate(){
 
 int main(){
 
-        table["pi"] =3.1415926;
-        table["e"]=2.71818;
+        table["pi"] =3.1415926535897932385;
+        table["e"]=2.7182818284590452354;
 
         //Functions in cmath(math.h)    
         mathfun_table["sqrt"]=sqrt;

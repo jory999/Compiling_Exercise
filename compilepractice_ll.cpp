@@ -80,6 +80,7 @@ Token Token_stream::get(){
            
            case ';': 
            case '\n':
+                cout<<ch;
                 return ct={Kind::print};  
            case '#':     
            case '*':
@@ -89,12 +90,14 @@ Token Token_stream::get(){
            case '(':
            case ')':
            case '=':
+                cout<<ch;
                 return ct={static_cast<Kind> (ch)};
            case '0':case '1':case '2':case '3':case '4':case '5':case '6':case '7':case '8':case '9': 
            case '.':  
                 ip->putback(ch);
                 *ip>>ct.number_value;
                 ct.kind=Kind::number;
+                cout<<ct.number_value;
                 return ct; 
             default:
                 if(isalpha(ch)){
@@ -103,6 +106,7 @@ Token Token_stream::get(){
                 //  *ip>>ct.string_value;
                 while(ip->get(ch) && isalnum(ch))
                       ct.string_value+=ch;
+                      cout<<ct.string_value;
                       if (ch=='(')
                       {
                           //ip->putback(ch);
@@ -429,14 +433,14 @@ void B(){
                error("invalid input b");
         
         }        
-
+     
 }
 void A1(){
 
     
      switch(ts.current().kind){
             
-            case Kind::print:
+            case Kind::end:
             {
             break;
 
@@ -453,7 +457,7 @@ void A1(){
             } 
 
             default:
-               error("invalid input a1");
+              if(ts.current().kind!=Kind::end && ts.current().kind!=Kind::print) error("invalid input a1");
         
         }
 }
@@ -473,9 +477,9 @@ void A(){
                
                 B();
 
-                ts.get();
+              //b 
                 if(ts.current().kind!=Kind::print)  error("print expect a");
-
+                ts.get();
                
                 A1();
                 
@@ -485,7 +489,7 @@ void A(){
             } 
 
             default:
-               error("invalid input a");
+               if(ts.current().kind!=Kind::end)  error("invalid input a");
         
         }
 
@@ -500,8 +504,7 @@ void P()
       for(;;)
       {
           ts.get();
-          if(ts.current().kind==Kind::end) break;
-          if(ts.current().kind==Kind::print) continue;
+          
 
            switch(ts.current().kind)
            {
@@ -514,7 +517,8 @@ void P()
                 {
                     
                     A();
-                    ts.get();
+
+                    
                 
                     break;
 
@@ -523,8 +527,10 @@ void P()
                 default:
                 break;
            }
-           
-
+        cout<<"from P end"<<'\n';
+           if(ts.current().kind==Kind::end) break;
+           if(ts.current().kind==Kind::print) continue;
+             
         }
 
 
