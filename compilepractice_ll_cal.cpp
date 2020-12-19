@@ -29,7 +29,7 @@ double error(const string& s){
 
 enum class Kind:char {
 
-    name,number,end,func,
+    name,number,end='#',func,
     plus='+',minus='-',mul='*',div='/',print=';',assign='=',lp='(',rp=')'
 
 };
@@ -77,9 +77,12 @@ Token Token_stream::get(){
     switch (ch) {
            case  0:
                 return ct={Kind::end};
+           
            case ';': 
            case '\n':
+                cout<<ch;
                 return ct={Kind::print};  
+           case '#':     
            case '*':
            case '/':
            case '+': 
@@ -87,12 +90,14 @@ Token Token_stream::get(){
            case '(':
            case ')':
            case '=':
+                cout<<ch;
                 return ct={static_cast<Kind> (ch)};
            case '0':case '1':case '2':case '3':case '4':case '5':case '6':case '7':case '8':case '9': 
            case '.':  
                 ip->putback(ch);
                 *ip>>ct.number_value;
                 ct.kind=Kind::number;
+                cout<<ct.number_value;
                 return ct; 
             default:
                 if(isalpha(ch)){
@@ -101,6 +106,7 @@ Token Token_stream::get(){
                 //  *ip>>ct.string_value;
                 while(ip->get(ch) && isalnum(ch))
                       ct.string_value+=ch;
+                      cout<<ct.string_value;
                       if (ch=='(')
                       {
                           //ip->putback(ch);
@@ -250,24 +256,293 @@ double expr(bool get){
 
 
 }
+void B();
+void A();
 
-///////////////////////////////////////
+void D1(){
+    
+     switch(ts.current().kind){
+             
+            case Kind::print:
+            case Kind::rp:
+            case Kind::plus:
+            case Kind::minus:
+            case Kind::mul:
+            case Kind::div:
+            {
+              break;
 
-void calculate(){
-    double tempdig=0;
-    for(;;){
-        ts.get();
-        if(ts.current().kind==Kind::end) break;
-        if(ts.current().kind==Kind::print) continue;
-         tempdig=expr(false);
-        cout<<tempdig<<'\n';
+            }
+            
+            
+           
+            case Kind::assign:
+            {
+                ts.get();
+                B();
+                break;
+               
+            } 
 
-
-    }
-
+            default:
+               error("invalid input d1");
+        
+        } 
 }
 
+void D(){
+   
+     switch(ts.current().kind){
+             
+            
+            
+            case Kind::number:
+                 ts.get(); 
+                 break;
+            case Kind::name:
+            {
+                ts.get();
+                D1();
+                break;
+            }
+            case Kind::lp:
+            {
+                ts.get();
+                B();
+                ts.get();
+                break;
+            }
+            case Kind::minus:
+            {
+                
 
+                ts.get();
+                D();
+                break;
+            } 
+
+            default:
+               error("invalid input d");
+        
+        }  
+}
+void C1(){
+    
+     switch(ts.current().kind){
+             
+            case Kind::print:
+            case Kind::rp:
+            case Kind::plus:
+            case Kind::minus:
+            {
+            break;
+
+            }
+            
+            
+            case Kind::mul :
+            case Kind::div:
+            {
+                ts.get();
+                D();
+
+                
+                C1();
+                break;
+            } 
+
+            default:
+               error("invalid input c1");
+        
+        }  
+}
+void C(){
+
+     
+     switch(ts.current().kind){
+             
+            
+            
+            case Kind::number:
+            case Kind::name:
+            case Kind::lp:
+            case Kind::minus:
+            {
+               
+                D();
+
+               
+                C1();
+                break;
+            } 
+
+            default:
+               error("invalid input c");
+        
+        }   
+}
+void B1(){
+    
+     switch(ts.current().kind){
+             
+            case Kind::print:
+            case Kind::rp:
+            {
+            break;
+
+            }
+            
+            
+            case Kind::plus:
+            case Kind::minus:
+            {
+                ts.get();
+                C();
+
+                
+                B1();
+                break;
+            } 
+
+            default:
+               error("invalid input b1");
+        
+        }        
+
+}
+void B(){
+    
+     switch(ts.current().kind){
+             
+            
+            
+            case Kind::number:
+            case Kind::name:
+            case Kind::lp:
+            case Kind::minus:
+            {
+                
+                C();
+
+               
+                B1();
+                break;
+            } 
+
+            default:
+               error("invalid input b");
+        
+        }        
+     
+}
+void A1(){
+
+    
+     switch(ts.current().kind){
+            
+            case Kind::end:
+            {
+            break;
+
+            }
+            
+            case Kind::number:
+            case Kind::name:
+            case Kind::lp:
+            case Kind::minus:
+            {
+              
+                A();
+                break;
+            } 
+
+            default:
+              if(ts.current().kind!=Kind::end && ts.current().kind!=Kind::print) error("invalid input a1");
+        
+        }
+}
+
+void A(){
+     
+     
+     switch(ts.current().kind){
+             
+            
+            
+            case Kind::number:
+            case Kind::name:
+            case Kind::lp:
+            case Kind::minus:
+            {
+               
+                B();
+
+              //b 
+                if(ts.current().kind!=Kind::print)  error("print expect a");
+                ts.get();
+               
+                A1();
+                
+                
+
+                break;
+            } 
+
+            default:
+               if(ts.current().kind!=Kind::end)  error("invalid input a");
+        
+        }
+
+
+
+}
+///////////////////////////////////////
+
+void P()
+{
+    
+      for(;;)
+      {
+          ts.get();
+          
+
+           switch(ts.current().kind)
+           {
+               
+                
+                case Kind::number:
+                case Kind::name:
+                case Kind::lp:
+                case Kind::minus:
+                {
+                    
+                    A();
+
+                    
+                
+                    break;
+
+                } 
+
+                default:
+                break;
+           }
+        cout<<"from P end"<<'\n';
+           if(ts.current().kind==Kind::end) break;
+           if(ts.current().kind==Kind::print) continue;
+             
+        }
+
+
+     
+      
+       
+
+        
+
+
+
+}
 //////////////////////////////////////////////
 
 int main(){
@@ -283,8 +558,8 @@ int main(){
         mathfun_table["fabs"]=fabs;
         mathfun_table["tan"]=tan;
 
-
-        calculate();
+        //Token now_token =  ts.get();
+        P();
 
 
         return  no_of_errors;
