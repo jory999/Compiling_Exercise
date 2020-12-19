@@ -256,11 +256,12 @@ double expr(bool get){
 
 
 }
-void B();
+double B();
 void A();
 
-void D1(){
+double D1(){
     
+     double expression_val=0;
      switch(ts.current().kind){
              
             case Kind::print:
@@ -279,7 +280,7 @@ void D1(){
             case Kind::assign:
             {
                 ts.get();
-                B();
+               expression_val = B();
                 break;
                
             } 
@@ -288,27 +289,36 @@ void D1(){
                error("invalid input d1");
         
         } 
+
+        return expression_val;
 }
 
-void D(){
+double D(){
    
+     double expression_val=0;
      switch(ts.current().kind){
              
             
             
             case Kind::number:
+                expression_val = ts.current().number_value; 
                  ts.get(); 
                  break;
             case Kind::name:
             {
-                ts.get();
-                D1();
+                double& name_val=table[ts.current().string_value];
+                
+               if( ts.get().kind==Kind::assign) 
+               {
+               name_val=D1();
+               }
+               expression_val=name_val;
                 break;
             }
             case Kind::lp:
             {
                 ts.get();
-                B();
+               expression_val = B();
                 ts.get();
                 break;
             }
@@ -317,7 +327,7 @@ void D(){
                 
 
                 ts.get();
-                D();
+               expression_val =0 - D();
                 break;
             } 
 
@@ -325,9 +335,11 @@ void D(){
                error("invalid input d");
         
         }  
+        return expression_val;
 }
-void C1(){
+double C1(){
     
+     double expression_val=0;
      switch(ts.current().kind){
              
             case Kind::print:
@@ -341,24 +353,34 @@ void C1(){
             
             
             case Kind::mul :
+             {
+                ts.get();
+                expression_val = D();
+
+                
+                expression_val *= C1();
+                break;
+            } 
             case Kind::div:
             {
                 ts.get();
-                D();
+                expression_val = D();
 
                 
-                C1();
+                expression_val /= C1();
                 break;
             } 
 
             default:
                error("invalid input c1");
         
-        }  
-}
-void C(){
+        } 
 
-     
+        return expression_val; 
+}
+double C(){
+
+     double expression_val=0;
      switch(ts.current().kind){
              
             
@@ -369,20 +391,23 @@ void C(){
             case Kind::minus:
             {
                
-                D();
+                expression_val = D();
 
                
-                C1();
+                expression_val += C1();
                 break;
             } 
 
             default:
                error("invalid input c");
         
-        }   
+        }  
+
+        return expression_val; 
 }
-void B1(){
-    
+double B1(){
+      
+    double expression_val=0;
      switch(ts.current().kind){
              
             case Kind::print:
@@ -394,13 +419,25 @@ void B1(){
             
             
             case Kind::plus:
+             {
+                ts.get();
+
+                expression_val += C();
+
+                
+                expression_val +=B1();
+
+                break;
+            } 
             case Kind::minus:
             {
                 ts.get();
-                C();
+
+                expression_val -= C();
 
                 
-                B1();
+                expression_val -=B1();
+
                 break;
             } 
 
@@ -408,10 +445,11 @@ void B1(){
                error("invalid input b1");
         
         }        
-
+    return expression_val;
 }
-void B(){
+double B(){
     
+     double expression_val=0;
      switch(ts.current().kind){
              
             
@@ -419,20 +457,23 @@ void B(){
             case Kind::number:
             case Kind::name:
             case Kind::lp:
+
             case Kind::minus:
             {
                 
-                C();
+               expression_val = C();
 
                
-                B1();
+               expression_val += B1();
                 break;
             } 
 
             default:
                error("invalid input b");
         
-        }        
+        } 
+
+        return expression_val;       
      
 }
 void A1(){
@@ -475,7 +516,7 @@ void A(){
             case Kind::minus:
             {
                
-                B();
+              cout<<  B()<<'\n';
 
               //b 
                 if(ts.current().kind!=Kind::print)  error("print expect a");
