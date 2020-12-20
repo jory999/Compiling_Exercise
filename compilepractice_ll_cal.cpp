@@ -337,9 +337,9 @@ double D(){
         }  
         return expression_val;
 }
-double C1(){
+double C1(double up_val){
     
-     double expression_val=0;
+     double expression_val=up_val;
      switch(ts.current().kind){
              
             case Kind::print:
@@ -355,19 +355,19 @@ double C1(){
             case Kind::mul :
              {
                 ts.get();
-                expression_val = D();
+                expression_val *= D();
 
                 
-                expression_val *= C1();
+                expression_val = C1(expression_val);
                 break;
             } 
             case Kind::div:
             {
                 ts.get();
-                expression_val = D();
+                expression_val /= D();
 
                 
-                expression_val /= C1();
+                expression_val = C1(expression_val);
                 break;
             } 
 
@@ -393,8 +393,10 @@ double C(){
                
                 expression_val = D();
 
-               
-                expression_val += C1();
+            //    if(ts.current().kind==Kind::mul) expression_val *= C1();
+            //    if(ts.current().kind==Kind::div) expression_val /= C1();
+
+               expression_val = C1(expression_val);
                 break;
             } 
 
@@ -405,9 +407,9 @@ double C(){
 
         return expression_val; 
 }
-double B1(){
+double B1(double up_val){
       
-    double expression_val=0;
+    double expression_val=up_val;
      switch(ts.current().kind){
              
             case Kind::print:
@@ -425,7 +427,7 @@ double B1(){
                 expression_val += C();
 
                 
-                expression_val +=B1();
+                expression_val =B1(expression_val);
 
                 break;
             } 
@@ -436,7 +438,7 @@ double B1(){
                 expression_val -= C();
 
                 
-                expression_val -=B1();
+                expression_val =B1(expression_val);
 
                 break;
             } 
@@ -463,8 +465,9 @@ double B(){
                 
                expression_val = C();
 
-               
-               expression_val += B1();
+               /* if(ts.current().kind==Kind::plus) expression_val += B1();
+               if(ts.current().kind==Kind::minus) expression_val -=B1(); */
+               expression_val =B1(expression_val);
                 break;
             } 
 
